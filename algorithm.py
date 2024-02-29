@@ -13,45 +13,45 @@ def ensemble_net(image):
   threshold = 0.5
 
   # Get detections from Faster R-CNN and YOLOv5 models.
-  faster_rcnn_detections = get_faster_rcnn_detections(image)
-  yolov5_detections = get_yolov5_detections(image)
+  efficient_detections = get_efficient_detections(image)
+  yolov8_detections = get_yolov8_detections(image)
 
   # Initialize empty list to store ensembled detections.
   ensembled_detections = []
 
-  # Loop through each Faster R-CNN detection.
-  for faster_rcnn_detection in faster_rcnn_detections:
-    faster_rcnn_bbox, faster_rcnn_class, faster_rcnn_score = faster_rcnn_detection
+  # Loop through each efficientDet detection.
+  for efficient_detection in efficient_detections:
+    efficient_bbox, efficient_class, efficient_score = efficient_detection
 
-    # Find the corresponding YOLOv5 detection for the same class.
-    corresponding_yolov5_detection = None
-    for yolov5_detection in yolov5_detections:
-      yolov5_bbox, yolov5_class, yolov5_score = yolov5_detection
-      if yolov5_class == faster_rcnn_class:
-        corresponding_yolov5_detection = yolov5_detection
+    # Find the corresponding YOLOv8 detection for the same class.
+    corresponding_yolov8_detection = None
+    for yolov8_detection in yolov8_detections:
+      yolov8_bbox, yolov8_class, yolov8_score = yolov8_detection
+      if yolov8_class == efficient_class:
+        corresponding_yolov8_detection = yolov8_detection
         break
 
-    # If there is a corresponding YOLOv5 detection.
-    if corresponding_yolov5_detection:
-      yolov5_bbox, yolov5_class, yolov5_score = corresponding_yolov5_detection
+    # If there is a corresponding YOLOv8 detection.
+    if corresponding_yolov8_detection:
+      yolov8_bbox, yolov8_class, yolov8_score = corresponding_yolov8_detection
 
       # Check if the bounding boxes are close enough (IoU > threshold).
-      if is_iou_greater_than_threshold(faster_rcnn_bbox, yolov5_bbox, threshold):
-        # If the Faster R-CNN score is higher, use the Faster R-CNN detection.
-        if faster_rcnn_score > yolov5_score:
-          ensembled_detections.append([faster_rcnn_bbox, faster_rcnn_class, faster_rcnn_score])
-        # Else, use the YOLOv5 detection.
+      if is_iou_greater_than_threshold(efficient_bbox, yolov8_bbox, threshold):
+        # If the efficientDet score is higher, use the efficientDet detection.
+        if efficient_score > yolov8_score:
+          ensembled_detections.append([efficient_bbox, efficient_class, efficient_score])
+        # Else, use the YOLOv8 detection.
         else:
-          ensembled_detections.append([yolov5_bbox, yolov5_class, yolov5_score])
+          ensembled_detections.append([yolov8_bbox, yolov8_class, yolov8_score])
       # Else, if the bounding boxes are not close enough, use the detection with the higher score.
       else:
-        if faster_rcnn_score > yolov5_score:
-          ensembled_detections.append([faster_rcnn_bbox, faster_rcnn_class, faster_rcnn_score])
+        if efficient_score > yolov8_score:
+          ensembled_detections.append([efficient_bbox, efficient_class, efficient_score])
         else:
-          ensembled_detections.append([yolov5_bbox, yolov5_class, yolov5_score])
-    # Else, if there is no corresponding YOLOv5 detection, use the Faster R-CNN detection.
+          ensembled_detections.append([yolov8_bbox, yolov8_class, yolov8_score])
+    # Else, if there is no corresponding YOLOv8 detection, use the EfficientDet detection.
     else:
-      ensembled_detections.append([faster_rcnn_bbox, faster_rcnn_class, faster_rcnn_score])
+      ensembled_detections.append([efficient_bbox, efficient_class, efficient_score])
 
   return ensembled_detections
 
